@@ -6,5 +6,5 @@ RUN sudo apt-get update && sudo apt-get install -y \
     && \
     sudo rm -rf /var/lib/apt/lists/*
 
-RUN cargo install grcov &&\
-    cargo install coveralls
+RUN rustup toolchain install nightly
+RUN cargo install grcov coveralls
