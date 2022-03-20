@@ -1,4 +1,4 @@
-FROM cimg/rust:1.56.1
+FROM cimg/rust:1.59
 
 RUN sudo apt-get update && sudo apt-get install -y \
         pkg-config \
