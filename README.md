@@ -8,3 +8,4 @@ But it aims to be extended for other uses in developpement in Rust.
 You can propose all suggestion for adding more use in frame of an use of automation by docker.
 
 Obviously the documentation needs to be completed.
+
