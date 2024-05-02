@@ -1,4 +1,4 @@
-FROM cimg/rust:1.72.2
+FROM cimg/rust:1.77.2
 
 RUN sudo apt-get update && sudo apt install -y \
         pkg-config \
