@@ -1,6 +1,13 @@
 #! /usr/bin/env bash
 
-NAME=$1
+BRANCH='main'
+if [ "$1" == "--branch" ]; then
+  shift
+  BRANCH="$1"
+  shift
+fi
+
+NAME="$1"
 if [ -z $NAME ]; then
   NAME=$(get_crate_name.py)
 fi
@@ -29,6 +36,7 @@ grcov ./target/coverage/cov-binaries.zip \
   -b target \
   -t coveralls+ \
   --token $COVERALLS_REPO_TOKEN \
+  --vcs-branch $BRANCH \
   --excl-line 'unreachable' \
   --excl-start '// no-coverage:start' \
   --excl-stop '// no-coverage:stop' \
