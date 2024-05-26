@@ -1,5 +1,16 @@
 #! /usr/bin/env bash
 
+OPT_ARGS=
+if [ "$1" = "-i" ]; then
+  OPT_ARGS=" --ignore '$2'"
+  shift 2
+fi
+
+if [ "$1" = "-p" ]; then
+  OPT_ARGS=" --prefix-dir '$2'"
+  shift 2
+fi
+
 NAME="$1"
 if [ -z $NAME ]; then
   NAME=$(get_crate_name.py)
@@ -34,6 +45,7 @@ grcov ./target/coverage/cov-binaries.zip \
   --excl-stop '// no-coverage:stop' \
   --ignore '*/.cargo/*' \
   --ignore '*/target/debug/build/*' \
+  $OPT_ARGS \
   --llvm \
   --ignore-not-existing \
   -o target/coverage/coveralls.json
