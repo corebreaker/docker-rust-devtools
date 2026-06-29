@@ -1,21 +1,24 @@
-FROM cimg/rust:1.79.0 AS build
-RUN cargo install --locked --version 0.8.19 grcov
-RUN cargo install --locked --version 0.1.5 coveralls
+FROM cimg/rust:1.96.0 AS build
 
-FROM cimg/rust:1.79.0
+RUN sudo apt update && sudo apt install -y libgit2-dev
 
-RUN sudo apt-get update \
+RUN cargo install --version 0.10.7 grcov
+RUN cargo install --version 0.2.0 -F libgit coveralls
+
+# ---------------------------------------------------------------------------------------------------------------------
+FROM cimg/rust:1.96.0
+
+RUN sudo apt update \
     && sudo apt install -y \
         pkg-config \
         libssl-dev \
         python3-toml \
     && sudo rm -rf /var/lib/apt/lists/* \
-    && sudo groupadd -g 1000 frederic \
-    && sudo usermod -G frederic circleci
+    && sudo groupadd -g 1000 coveralls \
+    && sudo usermod -G coveralls circleci
 
 COPY --chown=circleci:circleci bin /home/circleci/bin/
 COPY --chown=circleci:circleci --from=build /home/circleci/.cargo/bin/grcov /home/circleci/.cargo/bin/
 COPY --chown=circleci:circleci --from=build /home/circleci/.cargo/bin/coveralls /home/circleci/.cargo/bin/
 
 RUN rustup toolchain install nightly
-
