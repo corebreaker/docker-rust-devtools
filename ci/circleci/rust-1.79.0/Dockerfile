@@ -49,3 +49,4 @@ USER circleci
 WORKDIR /home/circleci
 
 RUN rustup toolchain install nightly
+RUN rustup component add --toolchain nightly-x86_64-unknown-linux-gnu rustfmt

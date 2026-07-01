@@ -55,6 +55,8 @@ COPY --chown=circleci:circleci --from=build /usr/local/cargo/bin/no-crlf /home/c
 USER circleci
 WORKDIR /home/circleci
 
-RUN no-crlf -r /home/circleci/bin/
+RUN no-crlf -r /home/circleci/bin/ && chmod +x /home/circleci/bin/*
 
 RUN rustup toolchain install nightly
+RUN rustup component add --toolchain nightly-x86_64-unknown-linux-gnu rustfmt
+RUN rustup component add llvm-tools

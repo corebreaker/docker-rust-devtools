@@ -5,10 +5,18 @@ if [ "$1" = "-p" ]; then
   shift 2
 fi
 
-TEST_ARGS=
+BUILD_ARGS=
 if [ "$1" = "-f" ]; then
-  TEST_ARGS="-F $2"
+  BUILD_ARGS="-F $2"
   shift 2
+elif [ "$1" = "-a" ]; then
+  BUILD_ARGS="--all-features"
+  shift
+fi
+
+if [ "$1" = "-w" ]; then
+  BUILD_ARGS="$BUILD_ARGS --all-targets"
+  shift
 fi
 
 while [ "$1" = "-i" ]; do
@@ -16,39 +24,32 @@ while [ "$1" = "-i" ]; do
   shift 2
 done
 
-NAME="$1"
-if [ -z $NAME ]; then
-  NAME=$(get_crate_name.py)
-fi
-
-echo "Name: $NAME"
-
+export RUSTFLAGS='-Cinstrument-coverage'
+export LLVM_PROFILE_FILE="`pwd`/target/profile/%p-%m.profraw"
 export CARGO_INCREMENTAL=0
-export RUSTFLAGS="-Cinstrument-coverage -Zprofile -Ccodegen-units=1 -Copt-level=0 -Coverflow-checks=off"
-export LLVM_PROFILE_FILE="default.profraw"
 export CARGO_NET_GIT_FETCH_WITH_CLI=true
 
+echo "Profile files: $LLVM_PROFILE_FILE"
+
 echo 'Run tests'
-cargo +nightly test --lib $TEST_ARGS
+cargo test --lib $BUILD_ARGS
 if [ $? -ne 0 ]; then
   exit 1
 fi
 
 mkdir target/coverage >/dev/null 2>&1
 
-echo 'Select files and store them into a Zip archive'
-zip -0 ./target/coverage/cov-binaries.zip $(find target/debug/deps -name "$NAME*.gc*" -print)
-
 COV_CMD='/tmp/do-coverage.sh'
 cat >$COV_CMD <<EOF
-grcov ./target/coverage/cov-binaries.zip \
+grcov ./target/profile \
   -s . \
-  -b target \
+  -b ./target/debug \
   -t coveralls+ \
   --token $COVERALLS_REPO_TOKEN \
   --excl-line 'unreachable' \
   --excl-start '// no-coverage:start' \
   --excl-stop '// no-coverage:stop' \
+  --keep-only '*/src/*' \
   $GRCOV_ARGS \
   --ignore '*/.cargo/*' \
   --ignore '*/target/debug/build/*' \
